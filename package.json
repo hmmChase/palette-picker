@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/hmmChase/palette-picker/issues"
   },
-  "homepage": "https://github.com/hmmChase/palette-picker#readme"
+  "homepage": "https://github.com/hmmChase/palette-picker#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "normalize.css": "^8.0.0"
+  }
 }
