@@ -53,14 +53,86 @@ const toggleLock = event => {
 
   lockIcon.classList.toggle('locked');
   lockIcon.classList.contains('locked')
-    ? (lockIcon.src = './assets/lock.svg')
-    : (lockIcon.src = './assets/unlock.svg');
+    ? (lockIcon.src = './images/lock.svg')
+    : (lockIcon.src = './images/unlock.svg');
+};
+
+loadProjects = async () => {
+  const projects = await fetchProjects();
+  const palettes = await fetchPalettes();
+
+  displayProjects(projects);
+  displayPalettes(palettes);
+};
+
+fetchProjects = async () => {
+  try {
+    const response = await fetch('/api/v1/projects');
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Network request failed. (error: ${error.message})`);
+  }
+};
+
+fetchPalettes = async () => {
+  try {
+    const response = await fetch('/api/v1/palettes');
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Network request failed. (error: ${error.message})`);
+  }
+};
+
+displayProjects = projects => {
+  projects.forEach(project => {
+    $('.select-projects').append(`
+      <option value=${project.project_name}>
+        ${project.project_name}</option>`);
+
+    $('.saved-projects').append(`
+      <div class='project ${project.id}'>
+        <h3 class='project-name'>${project.project_name}</h3>    
+      </div>`);
+  });
+};
+
+displayPalettes = palettes => {
+  palettes.forEach(palette => {
+    $(`.${palette.project_id}`).append(`
+    <div class="saved-palette">
+      <h4 class="palette-name">${palette.palette_name}</h4>
+      <div class="color-thumbnail" style='background-color:${
+        palette.color1
+      }'></div>
+      <div class="color-thumbnail" style='background-color:${
+        palette.color2
+      }'></div>
+      <div class="color-thumbnail" style='background-color:${
+        palette.color3
+      }'></div>
+      <div class="color-thumbnail" style='background-color:${
+        palette.color4
+      }'></div>
+      <div class="color-thumbnail" style='background-color:${
+        palette.color5
+      }'></div>
+      <img class="delete-palette-icon" src="./images/trashcan.svg" alt="trashcan">
+    </div>
+    `);
+  });
 };
 
 $('.lock-icon').click(() => toggleLock(event));
 $('.generate-button').click(generatePalette);
 
 $(document).ready(function() {
+  loadProjects();
   generatePalette();
   colorizeTitle();
 });
