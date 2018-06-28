@@ -34,11 +34,44 @@ app.get('/api/v1/projects', (request, response) => {
 });
 
 app.post('/api/v1/projects', (request, response) => {
-  const { projectName } = request.body;
+  const project = request.body;
+
+  if (!project) {
+    return response.status(422).send({ Error: 'Missing project data' });
+  }
   database('projects')
-    .insert(projectName, 'id')
+    .insert(project, 'id')
     .then(projectID => {
-      response.status(201).json({ projectID: projectID[0] });
+      response.status(201).json({ id: projectID[0] });
+    })
+    .catch(error => {
+      response.status(500).json({ error });
+    });
+});
+
+app.post('/api/v1/palettes', (request, response) => {
+  const palette = request.body;
+
+  if (!palette) {
+    return response.status(422).send({ Error: 'Missing palette data' });
+  }
+  database('palettes')
+    .insert(palette, 'id')
+    .then(paletteID => {
+      response.status(201).json({ id: paletteID[0] });
+    })
+    .catch(error => {
+      response.status(500).json({ error });
+    });
+});
+
+app.delete('/api/v1/palettes', (request, response) => {
+  const { id } = request.body;
+  database('palettes')
+    .where('id', id)
+    .del()
+    .then(palette => {
+      response.status(204).json(palette);
     })
     .catch(error => {
       response.status(500).json({ error });

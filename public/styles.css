@@ -1,4 +1,4 @@
-@import '../node_modules/normalize.css/normalize.css';
+/* @import '../node_modules/normalize.css/normalize.css'; */
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
 * {
@@ -51,6 +51,7 @@ body {
 .lock-icon {
   height: 30px;
   margin: 20px 0 5px 0;
+  cursor: pointer;
 }
 
 .hex-color {
@@ -88,4 +89,37 @@ body {
 
 .project-container {
   text-align: center;
+}
+
+.project {
+  margin: 10px;
+}
+
+.project-name {
+  display: inline-block;
+}
+
+.saved-palette {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  margin: 5px;
+}
+
+.palette-name {
+  display: inline-block;
+}
+
+.delete-palette-icon {
+  height: 20px;
+}
+
+.delete-palette-icon:hover {
+  cursor: pointer;
+}
+
+.color-thumbnail {
+  height: 30px;
+  width: 30px;
+  /* display: inline-block; */
 }

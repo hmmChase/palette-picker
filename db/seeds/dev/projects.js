@@ -1,36 +1,34 @@
 exports.seed = function(knex, Promise) {
   return knex('palettes')
-    .del() // delete all footnotes first
-    .then(() => knex('projects').del()) // delete all papers
+    .del()
+    .then(() => knex('projects').del())
     .then(() => {
       return Promise.all([
         knex('projects')
           .insert(
             {
-              project_name: 'Fooo'
+              project_name: 'Seed project'
             },
             'id'
           )
           .then(project => {
             return knex('palettes').insert([
               {
-                palette_name: 'Fooo',
-                color1: '#123456',
-                color2: '#123456',
-                color3: '#123456',
-                color4: '#123456',
-                color5: '#123456',
-                color1: '#123456',
+                palette_name: 'Seed palette 1',
+                color1: '#874D94',
+                color2: '#013A9B',
+                color3: '#BE52F9',
+                color4: '#4B69ED',
+                color5: '#87E9CD',
                 project_id: project[0]
               },
               {
-                palette_name: 'hola',
-                color1: '#123456',
-                color2: '#123456',
-                color3: '#123456',
-                color4: '#123456',
-                color5: '#123456',
-                color1: '#123456',
+                palette_name: 'Seed palette 2',
+                color1: '#D2DC61',
+                color2: '#AF0959',
+                color3: '#8ACFD2',
+                color4: '#F5A9B0',
+                color5: '#9367D7',
                 project_id: project[0]
               }
             ]);
