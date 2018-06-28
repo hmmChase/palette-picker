@@ -21,23 +21,23 @@ const generatePalette = () => {
     });
 };
 
-const getPaletteColors = () => {
-  const color1 = $('#color-sample1').css('backgroundColor');
-  const color2 = $('#color-sample2').css('backgroundColor');
-  const color3 = $('#color-sample3').css('backgroundColor');
-  const color4 = $('#color-sample4').css('backgroundColor');
-  const color5 = $('#color-sample5').css('backgroundColor');
-  const colorPalette = [color1, color2, color3, color4, color5];
-  return colorPalette.map(rbg => convertToHex(rbg));
-};
+// const getPaletteColors = () => {
+//   const color1 = $('#color-sample1').css('backgroundColor');
+//   const color2 = $('#color-sample2').css('backgroundColor');
+//   const color3 = $('#color-sample3').css('backgroundColor');
+//   const color4 = $('#color-sample4').css('backgroundColor');
+//   const color5 = $('#color-sample5').css('backgroundColor');
+//   const colorPalette = [color1, color2, color3, color4, color5];
+//   return colorPalette.map(rbg => convertToHex(rbg));
+// };
 
-const convertToHex = rgb => {
-  rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-  function hex(x) {
-    return ('0' + parseInt(x).toString(16)).slice(-2);
-  }
-  return '#' + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
-};
+// const convertToHex = rgb => {
+//   rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+//   function hex(x) {
+//     return ('0' + parseInt(x).toString(16)).slice(-2);
+//   }
+//   return '#' + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+// };
 
 const colorizeTitle = () => {
   $('.title')
@@ -91,14 +91,8 @@ fetchPalettes = async () => {
 
 displayProjects = projects => {
   projects.forEach(project => {
-    $('.select-projects').append(`
-      <option value=${project.project_name}>
-        ${project.project_name}</option>`);
-
-    $('.saved-projects').append(`
-      <div class='project ${project.id}'>
-        <h3 class='project-name'>${project.project_name}</h3>    
-      </div>`);
+    const { project_name, id } = project;
+    appendProject(project_name, id);
   });
 };
 
@@ -128,8 +122,51 @@ displayPalettes = palettes => {
   });
 };
 
+const appendProject = (name, id) => {
+  $('.select-projects').append(`
+      <option value=${name}>
+        ${name}</option>`);
+
+  $('.saved-projects').append(`
+      <div class='project ${id}'>
+        <h3 class='project-name'>${name}</h3>    
+      </div>`);
+};
+
+saveProject = async event => {
+  event.preventDefault();
+  const $projectName = $('.project-name-input').val();
+  const savedProjects = await fetchProjects();
+  const projectExists = savedProjects.some(project => {
+    return project.project_name === $projectName;
+  });
+
+  if (!projectExists && $projectName.length) {
+    console.log('%c posted: ', 'background: #000; color: #bada55', 'posted');
+
+    try {
+      const options = {
+        method: 'POST',
+        body: JSON.stringify({ project_name: $projectName }),
+        headers: { 'Content-Type': 'application/json' }
+      };
+      const response = await fetch('/api/v1/projects', options);
+      if (!response.ok) {
+        throw new Error(`${response.status}`);
+      }
+      const parsedResponse = await response.json();
+      appendProject($projectName, parsedResponse.id);
+      $('.project-name-input').val('');
+      return parsedResponse;
+    } catch (error) {
+      throw new Error(`Network request failed. (error: ${error.message})`);
+    }
+  }
+};
+
 $('.lock-icon').click(() => toggleLock(event));
 $('.generate-button').click(generatePalette);
+$('.save-project').click(saveProject);
 
 $(document).ready(function() {
   loadProjects();
