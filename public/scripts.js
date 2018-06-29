@@ -128,13 +128,13 @@ const appendProject = (name, id) => {
         ${name}</option>`);
 
   $('.saved-projects').append(`
-      <div class='project' id=${id}>
+      <div class='project' id=project${id}>
         <h3 class='project-name'>${name}</h3>    
       </div>`);
 };
 
 const appendPalette = (paletteName, paletteID, colors, projectId) => {
-  $(`#${projectId}`).append(`
+  $(`#project${projectId}`).append(`
   <div class="saved-palette" id=${paletteID}>
     <h4 class="palette-name">${paletteName}</h4>
     <div class="color-thumbnail" style='background-color:${colors[0]}'></div>
