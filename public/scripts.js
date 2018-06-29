@@ -46,7 +46,7 @@ const colorizeTitle = () => {
     });
 };
 
-const toggleLock = event => {
+const toggleLock = () => {
   const lockIcon = event.target;
 
   lockIcon.classList.toggle('locked');
@@ -103,7 +103,7 @@ displayPalettes = palettes => {
       palette.color4,
       palette.color5
     ];
-    appendPalette(palette.palette_name, colors, palette.project_id);
+    appendPalette(palette.palette_name, palette.id, colors, palette.project_id);
   });
 };
 
@@ -118,9 +118,9 @@ const appendProject = (name, id) => {
       </div>`);
 };
 
-const appendPalette = (paletteName, colors, projectId) => {
+const appendPalette = (paletteName, paletteID, colors, projectId) => {
   $(`#${projectId}`).append(`
-  <div class="saved-palette">
+  <div class="saved-palette" id=${paletteID}>
     <h4 class="palette-name">${paletteName}</h4>
     <div class="color-thumbnail" style='background-color:${colors[0]}'></div>
     <div class="color-thumbnail" style='background-color:${colors[1]}'></div>
@@ -191,19 +191,42 @@ const savePalette = async event => {
       if (!response.ok) {
         throw new Error(`${response.status}`);
       }
-      appendPalette($paletteName, colors, $projectID);
+      const parsedResponse = await response.json();
+      appendPalette($paletteName, parsedResponse.id, colors, $projectID);
       $('.palette-name-input').val('');
-      return await response.json();
+      return parsedResponse;
     } catch (error) {
       throw new Error(`Network request failed. (error: ${error.message})`);
     }
   }
 };
 
-$('.lock-icon').click(() => toggleLock(event));
+const deletePalette = async () => {
+  const palette = event.path[1];
+  try {
+    const options = {
+      method: 'DELETE',
+      body: JSON.stringify({ id: palette.id }),
+      headers: { 'Content-Type': 'application/json' }
+    };
+    const response = await fetch('/api/v1/palettes', options);
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
+    palette.remove();
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Network request failed. (error: ${error.message})`);
+  }
+};
+
+const removePalette = () => {};
+
+$('.lock-icon').click(toggleLock);
 $('.generate-button').click(generatePalette);
 $('.save-project').click(saveProject);
 $('.save-palette').click(savePalette);
+$('.saved-projects').on('click', '.delete-palette-icon', deletePalette);
 
 $(document).ready(function() {
   loadProjects();
