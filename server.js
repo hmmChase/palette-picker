@@ -11,6 +11,10 @@ app.use(express.static('public'));
 
 app.set('port', process.env.PORT || 3000);
 
+app.get('/', (request, response) => {
+  response.status(200).text('this does nothing');
+});
+
 app.get('/api/v1/palettes', (request, response) => {
   database('palettes')
     .select()
@@ -81,3 +85,5 @@ app.delete('/api/v1/palettes', (request, response) => {
 app.listen(app.get('port'), () => {
   console.log(`server is running on localhost:${app.get('port')}`);
 });
+
+module.exports = app;
