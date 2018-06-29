@@ -1,7 +1,5 @@
 const randomHexColor = () => {
-  return '#000000'
-    .replace(/0/g, () => (~~(Math.random() * 16)).toString(16))
-    .toUpperCase();
+  return '#000000'.replace(/0/g, () => (~~(Math.random() * 16)).toString(16));
 };
 
 const generatePalette = () => {
@@ -16,7 +14,7 @@ const generatePalette = () => {
         $colorCard
           .css('background', color)
           .find('.hex-color')
-          .text(color);
+          .text(color.toUpperCase());
       }
     });
 };
@@ -91,45 +89,121 @@ fetchPalettes = async () => {
 
 displayProjects = projects => {
   projects.forEach(project => {
-    $('.select-projects').append(`
-      <option value=${project.project_name}>
-        ${project.project_name}</option>`);
-
-    $('.saved-projects').append(`
-      <div class='project ${project.id}'>
-        <h3 class='project-name'>${project.project_name}</h3>    
-      </div>`);
+    const { project_name, id } = project;
+    appendProject(project_name, id);
   });
 };
 
 displayPalettes = palettes => {
   palettes.forEach(palette => {
-    $(`.${palette.project_id}`).append(`
-    <div class="saved-palette">
-      <h4 class="palette-name">${palette.palette_name}</h4>
-      <div class="color-thumbnail" style='background-color:${
-        palette.color1
-      }'></div>
-      <div class="color-thumbnail" style='background-color:${
-        palette.color2
-      }'></div>
-      <div class="color-thumbnail" style='background-color:${
-        palette.color3
-      }'></div>
-      <div class="color-thumbnail" style='background-color:${
-        palette.color4
-      }'></div>
-      <div class="color-thumbnail" style='background-color:${
-        palette.color5
-      }'></div>
-      <img class="delete-palette-icon" src="./images/trashcan.svg" alt="trashcan">
-    </div>
-    `);
+    const colors = [
+      palette.color1,
+      palette.color2,
+      palette.color3,
+      palette.color4,
+      palette.color5
+    ];
+    appendPalette(palette.palette_name, colors, palette.project_id);
   });
+};
+
+const appendProject = (name, id) => {
+  $('.select-projects').append(`
+      <option value=${id}>
+        ${name}</option>`);
+
+  $('.saved-projects').append(`
+      <div class='project' id=${id}>
+        <h3 class='project-name'>${name}</h3>    
+      </div>`);
+};
+
+const appendPalette = (paletteName, colors, projectId) => {
+  $(`#${projectId}`).append(`
+  <div class="saved-palette">
+    <h4 class="palette-name">${paletteName}</h4>
+    <div class="color-thumbnail" style='background-color:${colors[0]}'></div>
+    <div class="color-thumbnail" style='background-color:${colors[1]}'></div>
+    <div class="color-thumbnail" style='background-color:${colors[2]}'></div>
+    <div class="color-thumbnail" style='background-color:${colors[3]}'></div>
+    <div class="color-thumbnail" style='background-color:${colors[4]}'></div>
+    <img class="delete-palette-icon" src="./images/trashcan.svg" alt="trashcan">
+  </div>
+  `);
+};
+
+saveProject = async event => {
+  event.preventDefault();
+  const $projectName = $('.project-name-input').val();
+  const savedProjects = await fetchProjects();
+  const projectExists = savedProjects.some(project => {
+    return project.project_name === $projectName;
+  });
+
+  if (!projectExists && $projectName.length) {
+    try {
+      const options = {
+        method: 'POST',
+        body: JSON.stringify({ project_name: $projectName }),
+        headers: { 'Content-Type': 'application/json' }
+      };
+      const response = await fetch('/api/v1/projects', options);
+      if (!response.ok) {
+        throw new Error(`${response.status}`);
+      }
+      const parsedResponse = await response.json();
+      appendProject($projectName, parsedResponse.id);
+      $('.project-name-input').val('');
+      return parsedResponse;
+    } catch (error) {
+      throw new Error(`Network request failed. (error: ${error.message})`);
+    }
+  }
+};
+
+const savePalette = async event => {
+  event.preventDefault();
+  const $paletteName = $('.palette-name-input').val();
+  const $projectID = $('.select-projects option:selected').val();
+  const colors = getPaletteColors();
+  const savedPalettes = await fetchPalettes();
+
+  const paletteExists = savedPalettes.some(palette => {
+    return palette.palette_name === $paletteName;
+  });
+
+  if (!paletteExists && $paletteName.length) {
+    try {
+      const options = {
+        method: 'POST',
+        body: JSON.stringify({
+          palette_name: $paletteName,
+          color1: colors[0],
+          color2: colors[1],
+          color3: colors[2],
+          color4: colors[3],
+          color5: colors[4],
+          project_id: $projectID
+        }),
+        headers: { 'Content-Type': 'application/json' }
+      };
+      const response = await fetch('/api/v1/palettes', options);
+      if (!response.ok) {
+        throw new Error(`${response.status}`);
+      }
+      appendPalette($paletteName, colors, $projectID);
+      $('.palette-name-input').val('');
+      return await response.json();
+    } catch (error) {
+      throw new Error(`Network request failed. (error: ${error.message})`);
+    }
+  }
 };
 
 $('.lock-icon').click(() => toggleLock(event));
 $('.generate-button').click(generatePalette);
+$('.save-project').click(saveProject);
+$('.save-palette').click(savePalette);
 
 $(document).ready(function() {
   loadProjects();
