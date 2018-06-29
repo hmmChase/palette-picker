@@ -231,7 +231,6 @@ const deletePalette = async () => {
       throw new Error(`${response.status}`);
     }
     palette.remove();
-    return await response.json();
   } catch (error) {
     throw new Error(`Network request failed. (error: ${error.message})`);
   }
