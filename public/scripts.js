@@ -107,6 +107,21 @@ displayPalettes = palettes => {
   });
 };
 
+const pickPalette = () => {
+  const children = event.path[1].children;
+  const colorArray = Array.from(children).filter(element => {
+    return element.className === 'color-thumbnail';
+  });
+  const hexColorArray = colorArray.map(color => {
+    return convertToHex(color.style.backgroundColor);
+  });
+  $('#color-sample1').css('background-color', hexColorArray[0]);
+  $('#color-sample2').css('background-color', hexColorArray[1]);
+  $('#color-sample3').css('background-color', hexColorArray[2]);
+  $('#color-sample4').css('background-color', hexColorArray[3]);
+  $('#color-sample5').css('background-color', hexColorArray[4]);
+};
+
 const appendProject = (name, id) => {
   $('.select-projects').append(`
       <option value=${id}>
@@ -159,6 +174,7 @@ saveProject = async event => {
       throw new Error(`Network request failed. (error: ${error.message})`);
     }
   }
+  alert("Please provide a name that hasn't been used");
 };
 
 const savePalette = async event => {
@@ -199,6 +215,7 @@ const savePalette = async event => {
       throw new Error(`Network request failed. (error: ${error.message})`);
     }
   }
+  alert("Please provide a name that hasn't been used");
 };
 
 const deletePalette = async () => {
@@ -220,13 +237,12 @@ const deletePalette = async () => {
   }
 };
 
-const removePalette = () => {};
-
 $('.lock-icon').click(toggleLock);
 $('.generate-button').click(generatePalette);
 $('.save-project').click(saveProject);
 $('.save-palette').click(savePalette);
 $('.saved-projects').on('click', '.delete-palette-icon', deletePalette);
+$('.saved-projects').on('click', '.color-thumbnail', pickPalette);
 
 $(document).ready(function() {
   loadProjects();
