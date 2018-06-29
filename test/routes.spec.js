@@ -21,7 +21,7 @@ describe('CLIENT routes', () => {
       });
   });
 
-  it('returns 404 for a route that does not exist', done => {
+  it('returns status 404 for a route that does not exist', done => {
     chai
       .request(server)
       .get('/sad')
@@ -79,6 +79,17 @@ describe('API routes', () => {
           done();
         });
     });
+
+    it('returns status 422 if name is missing', done => {
+      chai
+        .request(server)
+        .post('/api/v1/projects')
+        .send({})
+        .end((error, response) => {
+          response.should.have.status(422);
+          done();
+        });
+    });
   });
 
   describe('GET /api/v1/palettes', () => {
@@ -125,31 +136,37 @@ describe('API routes', () => {
           project_id: 1
         })
         .end((err, response) => {
-          console.log('response.body: ', response.body);
-
           response.should.have.status(201);
           response.should.be.json;
           response.body.should.be.a('object');
-          response.body.should.have.property('palette_name');
-          response.body.palette_name.should.equal('Mock palette');
-          response.body.should.have.property('color1');
-          response.body.color1.should.equal('#874D94');
-          response.body.should.have.property('color2');
-          response.body.color2.should.equal('#013A9B');
-          response.body.should.have.property('color3');
-          response.body.color3.should.equal('#BE52F9');
-          response.body.should.have.property('color4');
-          response.body.color4.should.equal('#4B69ED');
-          response.body.should.have.property('color5');
-          response.body.color5.should.equal('#87E9CD');
-          response.body.should.have.property('project_id');
-          response.body.project_id.should.equal(1);
+          response.body.should.have.property('id');
+          response.body.id.should.equal(3);
+          done();
+        });
+    });
+
+    it('returns status 422 if name is missing', done => {
+      chai
+        .request(server)
+        .post('/api/v1/palettes')
+        .send({})
+        .end((error, response) => {
+          response.should.have.status(422);
           done();
         });
     });
   });
 
-  describe('DELETE /api/v1/palettes', () => {});
+  describe('DELETE /api/v1/palettes', () => {
+    it('deletes a palette from the database', done => {
+      chai
+        .request(server)
+        .delete('/api/v1/palettes')
+        .send({ id: 1 })
+        .end((err, response) => {
+          response.should.have.status(204);
+          done();
+        });
+    });
+  });
 });
-
-// console.log('response: ', response.body);
