@@ -1,5 +1,7 @@
 # palette-picker
 
+[![Build Status](https://travis-ci.org/hmmChase/palette-picker.svg?branch=master)](https://travis-ci.org/hmmChase/palette-picker)
+
 Palette Picker allows you to generate color schemes and save them in project folders. It was built using jQuery, Postgress, Knex, with the API tested with moch, chai, and chai-http
 
 ### Project team:
